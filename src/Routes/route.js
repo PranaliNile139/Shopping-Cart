@@ -62,6 +62,8 @@ const userController = require('../controllers/UserController')
 
 const middleware = require('../Middeware/auth')
 
+const productController = require('../Controllers/ProductController')
+
 
 
 // ************************************************************* User Controller ********************************************************** //
@@ -72,6 +74,9 @@ router.post('/login', userController.login)
 router.get('/user/:userId/profile', middleware.auth, userController.getUser)
 
 router.put('/user/:userId/profile', middleware.auth, userController.update)
+
+// ************************************************************* User Controller ********************************************************** //
+router.post('/products', productController.createProduct)
 
 
 

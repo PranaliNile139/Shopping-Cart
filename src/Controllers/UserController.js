@@ -23,7 +23,7 @@ aws.config.update({
       var uploadParams = {
         ACL: "public-read", 
         Bucket: "classroom-training-bucket", // HERE
-        Key: "group37/profileImages" + file.originalname, // HERE    
+        Key: "group37/profileImages/" + file.originalname, // HERE    
         Body: file.buffer, 
       };
   
@@ -43,11 +43,12 @@ aws.config.update({
 
 const createUser = async function(req,res) {
     try{
-        const body = req.body.data;
-        const JSONbody = JSON.parse(body)
+        const body = req.body
+        // const body = req.body.data;
+        // const JSONbody = JSON.parse(body)
 
         //Validate body 
-        if (!validator.isValidBody(JSONbody)) {
+        if (!validator.isValidBody(body)) {
             return res.status(400).send({ status: false, msg: "User body should not be empty" });
         }
 
@@ -64,7 +65,7 @@ const createUser = async function(req,res) {
         }
 
 
-        const {fname, lname, email, password, phone, address} = JSONbody
+        const {fname, lname, email, password, phone, address} = body
 
         // Validate fname
         if(!validator.isValid(fname.trim())) {
@@ -144,7 +145,7 @@ const createUser = async function(req,res) {
         return res.status(201).send({status: true, message: "User created successfully", data: savedData})
         }
         else {
-            res.status(400).send({ status: false, msg: "No file to write" });
+            return res.status(400).send({ status: false, msg: "No file to write" });
         }
         
     }
@@ -293,8 +294,9 @@ module.exports.getUser = getUser
 const update = async function(req,res) {
     try {
         // Validate body
-        const reqBody = JSON.parse(req.body.data)
-        if(!validator.isValidBody(reqBody)) {
+        const body = req.body
+        // const reqBody = JSON.parse(req.body.data)
+        if(!validator.isValidBody(body)) {
             return res.status(400).send({status: false, msg: "Details must be present to update"})
         }
 
@@ -316,7 +318,7 @@ const update = async function(req,res) {
         }
 
         // Destructuring
-        let{fname, lname, email, phone, password, address} = reqBody;
+        let{fname, lname, email, phone, password, address} = body;
         let updatedData = {}
         if(validator.isValid(fname)) {
             updatedData['fname'] = fname
@@ -418,7 +420,7 @@ const update = async function(req,res) {
         var uploadParams = {
         ACL: "public-read", 
         Bucket: "classroom-training-bucket", // HERE
-        Key: "group37/profileImages" + file.originalname, // HERE    
+        Key: "group37/profileImages/" + file.originalname, // HERE    
         Body: file.buffer, 
         };
 
