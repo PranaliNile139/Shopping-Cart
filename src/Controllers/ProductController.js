@@ -139,11 +139,6 @@ const getProduct = async function(req,res) {
         let priceLessThan = req.query.priceLessThan
         let priceSort = req.query.priceSort
 
-        // // Validate query
-        // const query = req.query;
-        // if(validator.isValidBody(query)) {
-        //     return res.status(400).send({ status: false, msg: "Data must be in query"})
-        // }
 
         // Validate of body(It must not be present)
         const body = req.body;
@@ -202,6 +197,14 @@ const getProduct = async function(req,res) {
                 return res.status(400).send({status: false, msg: "No products exist"})
             }                
         }
+
+        let finalProduct = await ProductModel.find(data).sort({price: priceSort})
+        if(finalProduct !== 0) {
+            return res.status(200).send({status: true, msg: "Success", data: finalProduct})
+        }
+        else{
+            return res.status(404).send({status: false, msg: "No product exist"})
+        }
         
 
     }
@@ -226,6 +229,12 @@ const getProductById = async function(req,res) {
         const body = req.body;
         if(validator.isValidBody(body)) {
             return res.status(400).send({ status: false, msg: "Body must not be present"})
+        }
+
+        // Validate query (it must not be present)
+        const query = req.query;
+        if(validator.isValidBody(query)) {
+            return res.status(400).send({ status: false, msg: "Invalid parameters"});
         }
 
         const productId = req.params.productId
@@ -253,11 +262,42 @@ module.exports.getProductById = getProductById
 
 
 
-// ******************************************************** GET /products/:productId ******************************************************* //
+// ******************************************************** PUT /products/:productId ******************************************************* //
 
 const updateProduct = async function(req,res) {
     try {
+        // Validate body
+        const body = req.body
+         if(!validator.isValidBody(body)) {
+            return res.status(400).send({ status: false, msg: "Product details must be present"})
+        }
 
+        // Validate query (it must not be present)
+        const query = req.query;
+        if(validator.isValidBody(query)) {
+            return res.status(400).send({ status: false, msg: "Invalid parameters"});
+        }
+
+        const params = req.params;
+
+
+        const {title, description, price, isFreeShipping, style, availableSizes, installments} = body
+        const searchProduct = await ProductModel.findOne({_id: params.productId, isDeleted: false})
+        if(!searchProduct) {
+            return res.status(404).send({status: false, msg: "ProductId does not exist"})
+        }
+
+        let files = req.files;
+        if (files && files.length > 0) {
+        var uploadedFileURL = await uploadFile( files[0] );
+        }
+        const finalproduct = {
+            title, description, price, currencyId: "₹", currencyFormat: "INR",isFreeShipping, productImage: uploadedFileURL, style: style, availableSizes, installments
+        }
+
+        let updatedProduct = await ProductModel.findOneAndUpdate({_id:params.productId}, finalproduct, {new:true})
+        return res.status(200).send({status: true, msg: "Updated Successfully", data: updatedProduct}) 
+        
     }
     catch (err) {
         console.log("This is the error :", err.message)
@@ -266,3 +306,57 @@ const updateProduct = async function(req,res) {
 }
 
 module.exports.updateProduct = updateProduct
+
+
+
+
+
+// ******************************************************** DELETE /products/:productId ******************************************************* //
+
+const deleteById = async function (req, res){
+    try{
+        // Validate body (it must not be present)
+        const body = req.body
+         if(validator.isValidBody(body)) {
+            return res.status(400).send({ status: false, msg: "Invalid parametes"})
+        }
+
+        // Validate query (it must not be present)
+        const query = req.query;
+        if(validator.isValidBody(query)) {
+            return res.status(400).send({ status: false, msg: "Invalid parameters"});
+        }
+    
+        const productId = req.params.productId
+    
+        if (!validator.isValidobjectId(productId)) {
+            return res.status(400).send({status:false, msg:`this ${productId} is n0t valid`})
+        }
+    
+        let deletedProduct = await ProductModel.findById({_id:productId})
+        if (!deletedProduct) {
+            return res.status(404).send({status:false, msg:`this ${productId} is not exist in db`})
+        }
+    
+        if (deletedProduct.isDeleted !== false) {
+            return res.status(400).send({status:false, msg:`this ${productId} is already deleted`})
+        }
+    
+        await ProductModel.findByIdAndUpdate({_id:productId},{$set:{isDeleted:true, deletedAt: new Date()}},{new:true})
+    
+        return res.status(200).send({status:false, msg:"successfully deleted"})
+    
+        }
+
+    catch (err) {
+        console.log("This is the error :", err.message)
+        res.status(500).send({ msg: "Error", error: err.message })
+    }
+}
+
+module.exports.deleteById = deleteById
+
+
+
+
+/////////////////////////////////////////////////////////////// END OF PRODUCT CONTROLLER ///////////////////////////////////////////////////
