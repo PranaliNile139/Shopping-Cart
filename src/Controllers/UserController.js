@@ -122,6 +122,11 @@ const createUser = async function(req,res) {
             return res.status(400).send({status: false, message: "Shipping address details is/are missing"})
         }
 
+        // Validate shipping pincode
+        if(!validator.isValidPincode(address.shipping.pincode)) {
+            return res.status(400).send({status: false, msg: "Invalid Shipping pincode"})
+        }
+
         // Validate billing address
         if(!validator.isValid(address.billing)) {
             return res.status(400).send({status: false, message: "Billing address is required"})
@@ -130,6 +135,11 @@ const createUser = async function(req,res) {
         // Validate street, city, pincode of billing
         if(!validator.isValid(address.billing.street && address.billing.city && address.billing.pincode)) {
             return res.status(400).send({status: false, message: "Billing address details is/are missing"})
+        }
+
+        // Validate billing pincode
+        if(!validator.isValidPincode(address.billing.pincode)) {
+            return res.status(400).send({status: false, msg: "Invalid billing pincode"})
         }
 
 

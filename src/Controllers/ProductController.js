@@ -362,7 +362,7 @@ const deleteById = async function (req, res){
     }
 }
 
-module.exports.deleteById = deleteById
+module.exports.deleteById = deleteById 
 
 
 

@@ -45,6 +45,13 @@ const isValidPassword = function(value) {
     return true
 }
 
+const isValidPincode = function(value) {
+    if(!(/^[1-9]{1}[0-9]{2}[0-9]{3}$/.test(value.trim()))) {
+        return false
+    }
+    return true
+}
+
 const isValidPrice = function(value) {
     if(!/^[0-9]+$/.test(value.trim())){
         return false
@@ -87,7 +94,8 @@ module.exports = {
     isValidEmail, 
     isValidNumber,
     isValidName, 
-    isValidPassword, 
+    isValidPassword,
+    isValidPincode,
     isValidPrice, 
     isValidSize, 
     isvalidNum,

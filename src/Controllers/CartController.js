@@ -32,10 +32,10 @@ const createCart = async function(req,res) {
             return res.status(400).send({status: false, msg: "User does not exist"})
         }
 
-        // // AUTHORISATION
-        // if(userId !== req.user.userId) {
-        //     return res.status(401).send({status: false, msg: "Unauthorised access"})
-        // }
+        // AUTHORISATION
+        if(userId !== req.user.userId) {
+            return res.status(401).send({status: false, msg: "Unauthorised access"})
+        }
 
 
         const{items} = body
@@ -156,10 +156,10 @@ const updateCart = async function(req,res) {
             return res.status(400).send({status: false, msg: "userId does not exist"})
         }
 
-        // // AUTHORISATION
-        // if(userId !== req.user.userId) {
-        //     return res.status(401).send({status: false, msg: "Unauthorised access"})
-        // }
+        // AUTHORISATION
+        if(userId !== req.user.userId) {
+            return res.status(401).send({status: false, msg: "Unauthorised access"})
+        }
 
         const {cartId, productId, removeProduct} = body
 
@@ -200,7 +200,7 @@ const updateCart = async function(req,res) {
         if(!productSearch) {
             return res.status(404).send({status: false, msg: "product does not exist"})
         }
-        // Check product if it is already deleted(isDeleted == true or not)
+        // Check product if it is already deleted(isDeleted == true)
         if(productSearch.isDeleted !== false) {
             return res.status(400).send({status: false, msg: "Product is already deleted"})
         }
@@ -211,47 +211,72 @@ const updateCart = async function(req,res) {
         if(!validator.isValidremoveProduct(removeProduct)) {
             return res.status(400).send({status: false, msg: "Invalid remove product"})
         }
-        if(removeProduct == 0) {
-            for(let i=0; cartSearch.items.length > 0; i++) {
-                if(cartSearch.items[i].productId == productId) {
-                    const priceChange = cartSearch.totalPrice - (productSearch.price)
-                    // const priceChange = cartSearch.totalPrice - (productSearch.price * cartSearch.items[i].quantity)
-                    
-                    const totalItems = cartSearch.totalItems - 1
-                    
-                    // To remove the product from items
-                    cartSearch.items.splice(i,1)
-                    const productRemove = await cartModel.findByIdAndUpdate({_id: cartId}, {items: cartSearch.items, totalItems, totalPrice: priceChange}, {new: true})
-                    return res.status(200).send({status: true, msg: "Product removed successfully", data: productRemove})
+
+        const cart = cartSearch.items
+        for(let i=0; i<cart.length; i++) {
+            if(cart[i].productId == productId) {
+                const priceChange = cart[i].quantity * productSearch.price
+                if(removeProduct == 0) {
+                    const productRemove = await cartModel.findOneAndUpdate({_id: cartId}, {$pull: {items:{productId: productId}}, totalPrice: cartSearch.totalPrice-priceChange, totalItems: cartSearch.totalItems - 1}, {new:true})
+                    return res.status(200).send({status: true, msg: "Removed product successfully", data: productRemove})
                 }
-                else {
-                    return res.status(404).send({status: false, msg: "productId doesnot match"})
+
+                if(removeProduct == 1) {
+                    if(cart[i].quantity == 1 && removeProduct == 1) {
+                        const priceUpdate = await cartModel.findOneAndUpdate({_id: cartId}, {$pull: {items: {productId}}, totalPrice:cartSearch.totalPrice-priceChange, totalItems:cartSearch.totalItems - 1}, {new: true})
+                        return res.status(200).send({status: true, msg: "Successfully removed product or cart is empty", data: priceUpdate})
+                    }
+
+                    cart[i].quantity = cart[i].quantity - 1
+                    const updatedCart = await cartModel.findByIdAndUpdate({_id: cartId}, {items: cart, totalPrice:cartSearch.totalPrice -productSearch.price}, {new: true})
+                    return res.status(200).send({status: true, msg: "sucessfully decremented the product", data: updatedCart})
                 }
             }
         }
 
-        if (removeProduct == 1) {
-            for (let i = 0; i <cartSearch.items.length; i++) {
-                if (cartSearch.items[i].productId == productId) {
-                    const priceUpdate = cartSearch.totalPrice - productSearch.price
-                    cartSearch.items[i].quantity = cartSearch.items[i].quantity - 1
-                    // check if quantity is more than 1
-                    if (cartSearch.items[i].quantity > 0) {
-                        const response = await cartModel.findOneAndUpdate({ _id: cartId }, { items: cartSearch.items, totalPrice: priceUpdate }, { new: true })
-                        return res.status(200).send({ status: true, message: `One quantity  removed from the product cart`, data: response })
-                    }
-                    else {
-                        const totalItems1 = cartSearch.totalItems - 1
-                        // to remove the Product from items
-                        cartSearch.items.splice(i, 1)
-                        const response = await cartModel.findOneAndUpdate({ _id: cartId }, { items: cartSearch.items, totalItems: totalItems1, totalPrice: priceUpdate }, { new: true })
-                        return res.status(200).send({ status: true, message: `1 product removed from the cart`, data: response })
-                    }
-                } else {
-                    return res.status(400).send({ status: false, message: `product doesnot exist` })
-                }
-            }
-        }
+
+
+        // if(removeProduct == 0) {
+        //     for(let i=0; cartSearch.items.length > 0; i++) {
+        //         if(cartSearch.items[i].productId == productId) {
+        //             // const priceChange = cartSearch.totalPrice - (productSearch.price)
+        //             const priceChange = cartSearch.totalPrice - (productSearch.price * cartSearch.items[i].quantity)
+                    
+        //             const totalItems = cartSearch.totalItems - 1
+                    
+        //             // To remove the product from items
+        //             cartSearch.items.splice(i,1)
+        //             const productRemove = await cartModel.findByIdAndUpdate({_id: cartId}, {items: cartSearch.items, totalItems, totalPrice: priceChange}, {new: true})
+        //             return res.status(200).send({status: true, msg: "Product removed successfully", data: productRemove})
+        //         }
+        //         else {
+        //             return res.status(404).send({status: false, msg: "productId doesnot match"})
+        //         }
+        //     }
+        // }
+
+        // if (removeProduct == 1) {
+        //     for (let i = 0; i <cartSearch.items.length; i++) {
+        //         if (cartSearch.items[i].productId == productId) {
+        //             const priceUpdate = cartSearch.totalPrice - productSearch.price
+        //             cartSearch.items[i].quantity = cartSearch.items[i].quantity - 1
+        //             // check if quantity is more than 1
+        //             if (cartSearch.items[i].quantity > 0) {
+        //                 const response = await cartModel.findOneAndUpdate({ _id: cartId }, { items: cartSearch.items, totalPrice: priceUpdate }, { new: true })
+        //                 return res.status(200).send({ status: true, message: `One quantity  removed from the product cart`, data: response })
+        //             }
+        //             else {
+        //                 const totalItems1 = cartSearch.totalItems - 1
+        //                 // to remove the Product from items
+        //                 cartSearch.items.splice(i, 1)
+        //                 const response = await cartModel.findOneAndUpdate({ _id: cartId }, { items: cartSearch.items, totalItems: totalItems1, totalPrice: priceUpdate }, { new: true })
+        //                 return res.status(200).send({ status: true, message: `1 product removed from the cart`, data: response })
+        //             }
+        //         } else {
+        //             return res.status(400).send({ status: false, message: `product doesnot exist` })
+        //         }
+        //     }
+        // }
     }
     catch (err) {
         console.log("This is the error :", err.message)
@@ -294,10 +319,10 @@ const getCart = async function(req,res) {
             return res.status(400).send({status: false, msg: "userId does not exist"})
         }
 
-        // // AUTHORISATION
-        // if(userId !== req.user.userId) {
-        //     return res.status(401).send({status: false, msg: "Unauthorised access"})
-        // }
+        // AUTHORISATION
+        if(userId !== req.user.userId) {
+            return res.status(401).send({status: false, msg: "Unauthorised access"})
+        }
 
         // To check cart is present or not
         const cartSearch = await cartModel.findOne({userId})
@@ -347,10 +372,10 @@ const deleteCart = async function(req,res) {
             return res.status(404).send({status: false, msg: "User doesnot exist"})
         }
 
-        // // AUTHORISATION
-        // if(userId !== req.user.userId) {
-        //     return res.status(401).send({status: false, msg: "Unauthorised access"})
-        // }
+        // AUTHORISATION
+        if(userId !== req.user.userId) {
+            return res.status(401).send({status: false, msg: "Unauthorised access"})
+        }
 
         // To check cart is present or not
         const cartSearch = await cartModel.findOne({userId})
@@ -369,3 +394,7 @@ const deleteCart = async function(req,res) {
 }
 
 module.exports.deleteCart = deleteCart
+
+
+
+/////////////////////////////////////////////////////////////// END OF CART CONTROLLER ///////////////////////////////////////////////////
