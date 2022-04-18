@@ -64,6 +64,8 @@ const middleware = require('../Middeware/auth')
 
 const productController = require('../Controllers/ProductController')
 
+const cartController = require('../Controllers/CartController')
+
 
 
 // ************************************************************* User Controller ********************************************************** //
@@ -75,7 +77,7 @@ router.get('/user/:userId/profile', middleware.auth, userController.getUser)
 
 router.put('/user/:userId/profile', middleware.auth, userController.update)
 
-// ************************************************************* User Controller ********************************************************** //
+// ************************************************************* Product Controller ********************************************************** //
 router.post('/products', productController.createProduct)
 
 router.get('/products', productController.getProduct)
@@ -86,6 +88,16 @@ router.put('/products/:productId', productController.updateProduct)
 
 router.delete('/products/:productId', productController.deleteById)
 
+// ************************************************************* Cart Controller ********************************************************** //
+// router.post('/users/:userId/cart', middleware.auth, cartController.createCart)
+
+router.post('/users/:userId/cart', cartController.createCart)
+
+router.put('/users/:userId/cart', cartController.updateCart)
+
+router.get('/users/:userId/cart', cartController.getCart)
+
+router.delete('/users/:userId/cart', cartController.deleteCart)
 
 
 module.exports = router;

@@ -72,9 +72,19 @@ const createUser = async function(req,res) {
             return res.status(400).send({status: false, message: "fname must be present"})
         }
 
+        // Validation of fname
+        if(!validator.isValidName(fname.trim())) {
+            return res.status(400).send({status:false, msg: "Invalid fname"})
+        }
+
         // Validate lname
         if(!validator.isValid(lname.trim())) {
             return res.status(400).send({status: false, message: "lname must be present"})
+        }
+
+        // Validation of lname
+        if(!validator.isValidName(lname.trim())) {
+            return res.status(400).send({status:false, msg: "Invalid lname"})
         }
 
         // Validate email

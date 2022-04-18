@@ -38,7 +38,8 @@ const productSchema = new mongoose.Schema({
         enum: ["S", "XS", "M", "X", "L", "XXL", "XL"]
     },
     installments: {
-        type: Number
+        type: Number,
+        default:0
     },
     deletedAt: {
         Date

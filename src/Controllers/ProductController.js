@@ -1,6 +1,6 @@
 const ProductModel = require("../Models/ProductModel")
 const aws = require("aws-sdk")
-const mongoose = require("mongoose")
+// const mongoose = require("mongoose")
 const validator = require('../Validator/validation');
 
 
@@ -41,11 +41,9 @@ aws.config.update({
 
 const createProduct = async function(req,res) {
     try {
-        const body = req.body
-        // const body = req.body.data
-        // const JSONbody = JSON.parse(body)
 
         // Validate body
+        const body = req.body
         if(!validator.isValidBody(body)) {
             return res.status(400).send({ status: false, msg: "Product details must be present"})
         }
@@ -86,9 +84,19 @@ const createProduct = async function(req,res) {
             return res.status(400).send({status: false, msg: "currencyId is required"})
         }
 
+        // Validation of currencyId
+        if(!validator.isvalidCurrencyId(currencyId)) {
+            return res.status(400).send({status: false, msg: "Invalid currencyId"})
+        }
+
         // Validate currencyFormat
         if(!validator.isValid(currencyFormat)) {
             return res.status(400).send({ status: false, msg: "currencyFormat is required"})
+        }
+
+        // Validation of currencyFormat
+        if(!validator.isvalidCurrencyFormat(currencyFormat)) {
+            return res.status(400).send({status: false, msg: "Invalid currencyFormat"})
         }
 
         // Validate availableSizes
@@ -110,7 +118,7 @@ const createProduct = async function(req,res) {
             title, description, price, currencyId: "₹", currencyFormat: "INR",isFreeShipping, productImage: uploadedFileURL, style: style, availableSizes, installments
         }
         let productData = await ProductModel.create(product)
-        return res.status(201).send({status: true, msg:"Product updated", data: productData})
+        return res.status(201).send({status: true, msg:"Product created", data: productData})
         }
         else{
             return res.status(400).send({status: false, msg: "Product image is required"})
@@ -330,7 +338,7 @@ const deleteById = async function (req, res){
         const productId = req.params.productId
     
         if (!validator.isValidobjectId(productId)) {
-            return res.status(400).send({status:false, msg:`this ${productId} is n0t valid`})
+            return res.status(400).send({status:false, msg:`this ${productId} is not valid`})
         }
     
         let deletedProduct = await ProductModel.findById({_id:productId})
