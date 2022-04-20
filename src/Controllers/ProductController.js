@@ -64,7 +64,7 @@ const createProduct = async function(req,res) {
         const {title, description, price, currencyId, currencyFormat,isFreeShipping,style, availableSizes,installments} = body
 
         // Validate title
-        if(!validator.isValid(title.trim())) {
+        if(!validator.isValid(title)) {
             return res.status(400).send({ status: false, msg: "Title is required"})
         }
 
@@ -74,6 +74,11 @@ const createProduct = async function(req,res) {
         }
 
         // Validate price
+        if(!validator.isValid(price)) {
+            return res.status(400).send({ status: false, msg: "price is required"})
+        }
+        
+        // Validation of price
         if(!validator.isValidPrice(price)) {
         // if(typeof price !== "number") {
             return res.status(400).send({status: false, msg: "Invalid number"})

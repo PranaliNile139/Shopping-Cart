@@ -68,43 +68,53 @@ const createUser = async function(req,res) {
         const {fname, lname, email, password, phone, address} = body
 
         // Validate fname
-        if(!validator.isValid(fname.trim())) {
+        if(!validator.isValid(fname)) {
             return res.status(400).send({status: false, message: "fname must be present"})
         }
 
         // Validation of fname
-        if(!validator.isValidName(fname.trim())) {
+        if(!validator.isValidName(fname)) {
             return res.status(400).send({status:false, msg: "Invalid fname"})
         }
 
         // Validate lname
-        if(!validator.isValid(lname.trim())) {
+        if(!validator.isValid(lname)) {
             return res.status(400).send({status: false, message: "lname must be present"})
         }
 
         // Validation of lname
-        if(!validator.isValidName(lname.trim())) {
+        if(!validator.isValidName(lname)) {
             return res.status(400).send({status:false, msg: "Invalid lname"})
         }
 
         // Validate email
-        if(!validator.isValid(email.trim())) {
+        if(!validator.isValid(email)) {
             return res.status(400).send({status: false, message: "email must be present"})
         }
 
         // Validation of email id
-        if(!validator.isValidEmail(email.trim())) {
+        if(!validator.isValidEmail(email)) {
             return res.status(400).send({status: false, message: "Invalid email id"})
         }
 
         // Validate password
-        if(!validator.isValid(password.trim())) {
+        if(!validator.isValid(password)) {
             return res.status(400).send({status: false, message: "password must be present"})
         }
 
         // Validation of password
-        if(!validator.isValidPassword(password.trim())) {
+        if(!validator.isValidPassword(password)) {
             return res.status(400).send({status: false, message: "Invalid password"})
+        }
+
+        // Validate phone
+        if(!validator.isValid(phone)) {
+            return res.status(400).send({status: false, message: "phone must be present"})
+        }
+
+        // Validation of phone number
+        if(!validator.isValidNumber(phone)) {
+            return res.status(400).send({status: false, msg: "Invalid phone number"})
         }
 
         // Validate address
@@ -208,22 +218,22 @@ const login = async function(req,res) {
         let password = body.password;
 
         // Validate email
-        if(!validator.isValid(email.trim())) {
+        if(!validator.isValid(email)) {
             return res.status(400).send({status: false, message: "email must be present"})
         }
 
         // Validation of email id
-        if(!validator.isValidEmail(email.trim())) {
+        if(!validator.isValidEmail(email)) {
             return res.status(400).send({status: false, message: "Invalid email id"})
         }
 
         // Validate password
-        if(!validator.isValid(password.trim())) {
+        if(!validator.isValid(password)) {
             return res.status(400).send({status: false, message: "password must be present"})
         }
 
         // Validation of password
-        if(!validator.isValidPassword(password.trim())) {
+        if(!validator.isValidPassword(password)) {
             return res.status(400).send({status: false, message: "Invalid password"})
         }
 
@@ -231,7 +241,7 @@ const login = async function(req,res) {
         if(email && password) {
             let user = await UserModel.findOne({email})
             if(!user) {
-                return res.status(400).send({status: false, message: "Email doesnot exist. Kindly create a new user"})
+                return res.status(404).send({status: false, message: "Email doesnot exist. Kindly create a new user"})
             }
 
             let pass = await bcrypt.compare(password, user.password);
@@ -338,7 +348,9 @@ const update = async function(req,res) {
         }
 
         // Destructuring
-        let{fname, lname, email, phone, password, address} = body;
+        let{fname, lname, email, phone, password, address, profileImage} = body;
+
+
         let updatedData = {}
         if(validator.isValid(fname)) {
             updatedData['fname'] = fname
@@ -352,6 +364,7 @@ const update = async function(req,res) {
             if(!validator.isValidEmail(email)) {
                 return res.status(400).send({status: false, msg: "Invalid email id"})
             }
+            
 
             // Duplicate email
             const duplicatemail = await UserModel.find({email:email})
@@ -376,10 +389,18 @@ const update = async function(req,res) {
         }
 
         // Updating of password
-        if(validator.isValid(password)) {
-            const encrypt = await bcrypt.hash(password, 10)
-            updatedData['password'] = encrypt
-        }
+        if(password){
+            if(!validator.isValid(password)) {
+                return res.status(400).send({ status: false, message: 'password is required' })
+            }
+            if(!validator.isValidPassword(password)) {
+                return res.status(400).send({ status: false, message: "Password should be Valid min 8 character and max 15 " })
+            }
+                const encrypt = await bcrypt.hash(password, 10)
+                updatedData['password'] = encrypt
+            }
+        
+        
 
         // Updating address
         if (address) {
@@ -400,6 +421,10 @@ const update = async function(req,res) {
                     if (typeof address.shipping.pincode !== 'number') {
                         return res.status(400).send({ status: false, message: 'Please provide pincode' })
                     }
+                    // Validate shipping pincode
+                    if(!validator.isValidPincode(address.shipping.pincode)) {
+                        return res.status(400).send({status: false, msg: "Invalid Shipping pincode"})
+                    }
                     updatedData['address.shipping.pincode'] = address.shipping.pincode
                 }
             }
@@ -419,6 +444,10 @@ const update = async function(req,res) {
                 if (address.billing.pincode) {
                     if (typeof address.billing.pincode !== 'number') {
                         return res.status(400).send({ status: false, message: 'Please provide pincode' })
+                    }
+                    // Validate billing pincode
+                    if(!validator.isValidPincode(address.billing.pincode)) {
+                        return res.status(400).send({status: false, msg: "Invalid billing pincode"})
                     }
                     updatedData['address.billing.pincode'] = address.billing.pincode
                 }

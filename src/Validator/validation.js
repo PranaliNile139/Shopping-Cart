@@ -15,8 +15,14 @@ const isValidobjectId = (objectId) => {
     return mongoose.Types.ObjectId.isValid(objectId)
 }
 
+const isValidString = function (value) {
+    if (typeof value === 'string' && value.trim().length === 0) return false  
+    return true;
+}
+
 const isValidEmail = function (value) {
-    if (!(/^[a-z0-9+_.-]+@[a-z0-9.-]+$/.test(value.trim()))) {
+    // if (!(/^[a-z0-9+_.-]+@[a-z0-9.-]+$/.test(value.trim()))) {
+    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value.trim())) {
         return false
     }
     return true
@@ -90,7 +96,8 @@ const isValidStatus = function(value) {
 module.exports = {
     isValid, 
     isValidBody, 
-    isValidobjectId, 
+    isValidobjectId,
+    isValidString, 
     isValidEmail, 
     isValidNumber,
     isValidName, 

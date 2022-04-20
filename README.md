@@ -480,3 +480,51 @@ Refer below sample
   updatedAt: "2021-09-17T04:25:07.803Z",
 }
 ```
+
+
+
+
+
+
+
+// if(removeProduct == 0) {
+        //     for(let i=0; cartSearch.items.length > 0; i++) {
+        //         if(cartSearch.items[i].productId == productId) {
+        //             // const priceChange = cartSearch.totalPrice - (productSearch.price)
+        //             const priceChange = cartSearch.totalPrice - (productSearch.price * cartSearch.items[i].quantity)
+                    
+        //             const totalItems = cartSearch.totalItems - 1
+                    
+        //             // To remove the product from items
+        //             cartSearch.items.splice(i,1)
+        //             const productRemove = await cartModel.findByIdAndUpdate({_id: cartId}, {items: cartSearch.items, totalItems, totalPrice: priceChange}, {new: true})
+        //             return res.status(200).send({status: true, msg: "Product removed successfully", data: productRemove})
+        //         }
+        //         else {
+        //             return res.status(404).send({status: false, msg: "productId doesnot match"})
+        //         }
+        //     }
+        // }
+
+        // if (removeProduct == 1) {
+        //     for (let i = 0; i <cartSearch.items.length; i++) {
+        //         if (cartSearch.items[i].productId == productId) {
+        //             const priceUpdate = cartSearch.totalPrice - productSearch.price
+        //             cartSearch.items[i].quantity = cartSearch.items[i].quantity - 1
+        //             // check if quantity is more than 1
+        //             if (cartSearch.items[i].quantity > 0) {
+        //                 const response = await cartModel.findOneAndUpdate({ _id: cartId }, { items: cartSearch.items, totalPrice: priceUpdate }, { new: true })
+        //                 return res.status(200).send({ status: true, message: `One quantity  removed from the product cart`, data: response })
+        //             }
+        //             else {
+        //                 const totalItems1 = cartSearch.totalItems - 1
+        //                 // to remove the Product from items
+        //                 cartSearch.items.splice(i, 1)
+        //                 const response = await cartModel.findOneAndUpdate({ _id: cartId }, { items: cartSearch.items, totalItems: totalItems1, totalPrice: priceUpdate }, { new: true })
+        //                 return res.status(200).send({ status: true, message: `1 product removed from the cart`, data: response })
+        //             }
+        //         } else {
+        //             return res.status(400).send({ status: false, message: `product doesnot exist` })
+        //         }
+        //     }
+        // }
