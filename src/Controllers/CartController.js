@@ -233,9 +233,6 @@ const updateCart = async function(req,res) {
                 }
             }
         }
-
-
-
         
     }
     catch (err) {

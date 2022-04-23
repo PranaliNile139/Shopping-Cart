@@ -8,7 +8,7 @@ const aws = require("aws-sdk");
 // ************************************************************* Controllers ************************************************************* //
 const userController = require('../controllers/UserController')
 
-const middleware = require('../Middeware/auth')
+const middleware = require('../Middleware/auth')
 
 const productController = require('../Controllers/ProductController')
 

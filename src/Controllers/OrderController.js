@@ -92,13 +92,13 @@ const updateOrder =async function(req,res) {
         // Validate body
         const body = req.body
         if(!validator.isValidBody(body)) {
-            return res.status(400).send({ status: false, msg: "Product details must be present"})
+            return res.status(400).send({ status: false, msg: "Order details must be present"})
         }
 
         // Validate query (it must not be present)
         const query = req.query;
         if(validator.isValidBody(query)) {
-            return res.status(400).send({ status: false, msg: "Invalid userId"});
+            return res.status(400).send({ status: false, msg: "Invalid parameters"});
         }
 
         // Validate params

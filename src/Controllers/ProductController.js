@@ -77,7 +77,7 @@ const createProduct = async function(req,res) {
         if(!validator.isValid(price)) {
             return res.status(400).send({ status: false, msg: "price is required"})
         }
-        
+
         // Validation of price
         if(!validator.isValidPrice(price)) {
         // if(typeof price !== "number") {
@@ -200,7 +200,7 @@ const getProduct = async function(req,res) {
             data["$lt"] = priceLessThan
         }
 
-        if(priceLessThan || priceGreaterThan) {
+        if(priceLessThan || priceGreaterThan || size || name || priceSort) {
             let searchPrice = await ProductModel.find({price:data, isDeleted: false}).sort({price: priceSort})
 
             if(searchPrice.length !== 0) {
@@ -210,6 +210,7 @@ const getProduct = async function(req,res) {
                 return res.status(400).send({status: false, msg: "No products exist"})
             }                
         }
+
 
         let finalProduct = await ProductModel.find(data).sort({price: priceSort})
         if(finalProduct !== 0) {
@@ -357,7 +358,7 @@ const deleteById = async function (req, res){
     
         await ProductModel.findByIdAndUpdate({_id:productId},{$set:{isDeleted:true, deletedAt: new Date()}},{new:true})
     
-        return res.status(200).send({status:false, msg:"successfully deleted"})
+        return res.status(200).send({status:true, msg:"successfully deleted"})
     
         }
 
